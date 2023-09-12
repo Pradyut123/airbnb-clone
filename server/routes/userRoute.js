@@ -3,10 +3,9 @@ const User = require("../models/User");
 const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-const imageDownloader = require("image-downloader");
-const path = require("path");
+const Place = require("../models/Place");
 
-//user registration
+//user profile
 router.get("/profile", (req, res) => {
   const { token } = req.cookies;
   if (token) {
@@ -20,6 +19,36 @@ router.get("/profile", (req, res) => {
   }
 });
 
-
+//add places
+router.get("/places", async (req, res) => {
+  const { token } = req.cookies;
+  const {
+    title,
+    address,
+    addedPhotos,
+    description,
+    perks,
+    extraInfo,
+    checkIn,
+    checkOut,
+    maxGuests,
+  } = req.body;
+  jwt.verify(token, process.env.JWT_KEY, {}, async (err, userData) => {
+    if (err) throw err;
+    const placeDocs = await Place.create({
+      owner: userData.id,
+      title,
+      address,
+      photos: addedPhotos,
+      description,
+      perks,
+      extraInfo,
+      checkIn,
+      checkOut,
+      maxGuests,
+    });
+    res.json(placeDocs);
+  });
+});
 
 module.exports = router;

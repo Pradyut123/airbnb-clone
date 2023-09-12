@@ -48,7 +48,7 @@ app.post("/api/upload-by-link", async (req, res) => {
   }
 });
 
-const photosMiddleware = multer({ dest: path.join(__dirname, "uploads") });
+const photosMiddleware = multer({ dest: path.join(__dirname, "uploads/") });
 
 app.post("/api/upload", photosMiddleware.array("photos", 100), (req, res) => {
   const uploadedFiles = [];

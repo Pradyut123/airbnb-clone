@@ -8,7 +8,10 @@ export default {
     extend: {
       colors: {
         primary: '#F5385D'
-      }
+      },
+      fontFamily: {
+        custom: ['Circular, -apple-system, BlinkMacSystemFont, Roboto, "Helvetica Neue", sans-serif'],
+      },
     },
   },
   plugins: [],

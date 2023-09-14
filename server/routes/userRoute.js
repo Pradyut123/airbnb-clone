@@ -4,6 +4,21 @@ const router = express.Router();
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
 const Place = require("../models/Place");
+const Booking = require("../models/Booking");
+
+function getUserDataFromReq(req) {
+  return new Promise((resolve, reject) => {
+    jwt.verify(
+      req.cookies.token,
+      process.env.JWT_KEY,
+      {},
+      async (err, userData) => {
+        if (err) throw err;
+        resolve(userData);
+      }
+    );
+  });
+}
 
 //user profile
 router.get("/profile", (req, res) => {
@@ -57,7 +72,6 @@ router.post("/places", async (req, res) => {
   }
 });
 
-
 //get specific user places
 router.get("/getPlaces", async (req, res) => {
   const { token } = req.cookies;
@@ -72,7 +86,6 @@ router.get("/getPlaces", async (req, res) => {
     res.json(await Place.find({ owner: id }));
   });
 });
-
 
 // get details of a specific place
 router.get("/places/:id", async (req, res) => {
@@ -121,6 +134,37 @@ router.put("/updatePlaces", async (req, res) => {
 //get all places
 router.get("/getAllPlaces", async (req, res) => {
   res.json(await Place.find());
+});
+
+// create user hotel booking
+router.post("/bookings", async (req, res) => {
+  const userData = await getUserDataFromReq(req);
+  const { place, checkIn, checkOut, numberOfGuests, name, phone, price } =
+    req.body;
+  Booking.create({
+    place,
+    checkIn,
+    checkOut,
+    numberOfGuests,
+    name,
+    phone,
+    price,
+    user: userData.id,
+  })
+    .then((doc) => {
+      res.json(doc);
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).json({ error: "Internal Server Error" });
+    });
+});
+
+
+//get a specific user bookings
+router.get("/getUserBookings", async (req, res) => {
+  const userData = await getUserDataFromReq(req);
+  res.json(await Booking.find({ user: userData.id }).populate("place"));
 });
 
 module.exports = router;
